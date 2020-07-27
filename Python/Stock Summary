@@ -1,0 +1,40 @@
+# Stock Summary
+  # Goal: Take a user defined stock ticker, date range and return graphics
+
+# ======================================================================== #
+
+def stock_summary(a, start_date, end_date):
+    
+    from pandas_datareader import data
+    import matplotlib.pyplot as plt
+    import matplotlib.style as style
+    import numpy as np
+    from pandas.plotting import register_matplotlib_converters
+    register_matplotlib_converters()
+    style.use('ggplot')
+    
+    df = data.DataReader(a, 'yahoo', start_date, end_date)
+    df['Returns'] = df['Adj Close'].pct_change()
+    df['Log Returns'] = np.log(df['Adj Close']) - np.log(df['Adj Close'].shift(1))
+    
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize = (15,15))
+    
+    ax1.plot(df.index, df['Adj Close'])
+    ax1.set_title('Daily Adjusted Closing Price')
+    ax1.set_ylabel('USD', fontweight = 'bold')
+    
+    ax2.plot(df.index, df['Returns'])
+    ax2.set_title('Daily Simple Returns')
+    ax2.set_ylabel('Percent', fontweight = 'bold')
+    
+    ax3.plot(df.index, df['Log Returns'])
+    ax3.set_title('Daily Logarithmic Returns')
+    ax3.set_ylabel('Logrithmic Return', fontweight = 'bold')
+    
+    plt.show()
+    
+    
+    # Try it!
+    # a = 'AAPL'
+    # start_date = '2010-01-01'
+    # end_date = '2020-01-01'
