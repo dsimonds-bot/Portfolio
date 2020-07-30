@@ -1,0 +1,10 @@
+# URL Cleaning
+# Goal:
+  # Take a user provided url string and parse out the utm parameters using split methods
+  
+# ===================================================================================== #
+def aspx(k):
+    if 'aspx' in k:
+        return str(k).split('/')[-1].split('?')[0]
+    else:
+        return str(k).split('/')[-2]
