@@ -1,0 +1,78 @@
+# Chi Square Grouping
+# Goal: 
+  # Generate four distinct groups based on exposure status and export data for chi square analysis
+# Note:
+  # Schema and columns renamed to protect origin privacy
+# Definitions:
+  # Converters = users who committed the action in question
+  # Dropped = users who were exposed and did not covert
+
+# ================================================================================================ #
+WITH
+  
+  /* Group A*/
+  a_users AS (
+    SELECT
+       DISTINCT user
+    FROM impression_data
+    WHERE placement IN (
+      SELECT
+        DISTINCT placement
+      FROM placement_warehouse
+      WHERE placement LIKE ('%_this%')
+      )),
+   
+   /* Group B */
+   b_users AS (
+     SELECT
+       DISTINCT user
+     FROM impression_data
+     LEFT JOIN a_users b
+     ON a.user = b.user
+     WHERE b.user IS NULL
+     ),
+   
+   a_converters AS (
+     SELECT
+        DISTINCT b.user
+     FROM conversions_data
+     INNER JOIN a_users b
+     ON a.user = b.user
+     WHERE conversion_id = XXXXXX
+     ),
+   
+   uf_dropped AS (
+     SELECT
+       DISTINCT user
+     FROM conversion_data a
+     RIGHT JOIN a_users b
+     ON a.user = b.user
+     WHERE a.user IS NULL
+     ),
+   
+   xuf_converters AS (
+     SELECT
+       DISTINCT user
+     FROM conversion_data a
+     INNER JOIN b_users b
+     ON a.user = b.user
+     WHERE conversion_id = XXXXXX
+     ),
+   
+   xuf_dropped AS (
+     SELECT
+       DISTINCT user
+     FROM conversion_data a
+     RIGHT JOIN b_users b
+     ON a.user = b.user
+     WHERE a.user IS NULL
+     )
+   
+SELECT COUNT(DISTINCT user) AS volume, 1 AS sort FROM a_converters
+UNION ALL
+SELECT COUNT(DISTINCT user) AS volume, 2 AS sort FROM a_dropped
+UNION ALL
+SELECT COUNT(DISTINCT user) AS volume, 3 AS sort FROM b_converters
+UNION ALL
+SELECT COUNT(DISTINCT user) AS volume, 4 AS sort FROM b_dropped
+ORDER BY sort ASC
