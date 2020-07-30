@@ -1,0 +1,15 @@
+# Coronavirus Day over Day Percent Change
+# Goal:
+  # Leverage window functions to return a day over day rate of change for new coronavirus cases
+# Note:
+  # Schema and columns renamed to protect origin privacy
+  
+# ============================================================================================ #
+SELECT
+ date,
+ sum(positive_cases) AS positiveCases,
+ LAG(positiveCases,1) IGNORE NULLS OVER (ORDER BY date ASC) AS PREV,
+ ((CAST(positiveCases AS DECIMAL(10,4)) - PREV)/PREV)*100 AS pctChange
+FROM data
+GROUP BY date
+ORDER BY date ASC
