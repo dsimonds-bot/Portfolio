@@ -1,0 +1,21 @@
+# User Time to Conversion
+# Goal:
+  # Generate an average time, in minutes, that it takes a users to fire a particular conversion
+# Note:
+  # Schema and columns renamed to protect origin privacy
+
+# ============================================================================== #
+SELECT
+   conversion,
+   AVG(TIMESTAMP_DIFF(TIMESTAMP_MICROS(CAST(time_1 AS INT64)), 
+                      TIMESTAMP_MICROS(CAST(time_2 AS INT64)), 
+                      MINUTE))
+FROM data
+WHERE campaign IN
+   (SELECT
+      DISTINCT campaign
+    FROM campaign_warehouse
+    WHERE campaign NOT LIKE ('%this%')
+    )
+GROUP BY 1
+ORDER BY 2 DESC
