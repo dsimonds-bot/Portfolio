@@ -1,0 +1,7 @@
+# Datetime Diff Function
+# Goal: 
+  # Return the time delta between two datetime objects
+  
+# ==================================================== #
+def time_diff(a,b):
+    return datetime.datetime.strptime(a, time) - datetime.datetime.strptime(b, time)
