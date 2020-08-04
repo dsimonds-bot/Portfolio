@@ -1,0 +1,34 @@
+def chi_sq(j):
+    
+    # Packages
+    import numpy as np
+    
+    # Df dimension, categories, and DoF
+    col_names = list(j.columns)
+    row_names = list(j.index)
+    df_m = len(j)
+    df_n = len(col_names)
+    DoF = (df_m - 1)*(df_n - 1)
+    
+    # Row, column, total sums
+    row_sum = list(np.sum(j, axis = 1))
+    col_sum = list(np.sum(j, axis = 0))
+    table_sum = np.sum(col_sum)
+    
+    
+    # Prepping the expected value calculation
+    ev_copy = j.copy()
+    diff_sq = j.copy()
+    
+    for c in list(j.columns):
+        for r in list(j.index):
+
+            r_sum = np.sum(df1, axis = 1)
+            c_sum = np.sum(df1, axis = 0)
+            tot_sum = np.sum(r_sum)
+
+            ev_copy[c].loc[r] = (r_sum[r]*c_sum[c])/tot_sum
+
+            diff_sq[c].loc[r] = (j[c].loc[r] - ev_copy[c].loc[r])**2/ev_copy[c].loc[r]
+            
+    return np.sum(diff_sq.values), j.head(), ev_copy.head(), diff_sq.head()
