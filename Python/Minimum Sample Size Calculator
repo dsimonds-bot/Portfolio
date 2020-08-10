@@ -1,0 +1,12 @@
+## Minimum Sample Size Calculator
+# Goal:
+  # Take a user defined moe, stddev, and z score and return their minimum sample size needed
+  # z = z score, most common 1.96 for 95%
+  # stddev = population standard deviation
+  # moe = user defined margin of error
+
+# ========================================================================================== # 
+
+def sample_size(z, moe, stddev):
+    import math
+    return math.ceil(((z*stddev)/moe)**2)
