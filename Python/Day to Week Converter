@@ -1,0 +1,21 @@
+# Day to Week Converter
+# Goal:
+  # Take daily values, or any increment for that matter, and convert it into period first day week format within a pandas dataframe
+# Use Cases:
+  # Changing daily volumes to weekly
+# Arguments:
+  # year: the year of the day over day data. note currently the function only supports one year at a time
+  # df: the pandas dataframe you are aggregating
+  # column: the name of the datetime column. note the function assumes this has already been converted
+
+# ================================================================================================================================== # 
+
+def day2week(year, df, column):
+    import datetime as datetime
+    df1 = df.copy()
+    df1['week'] = df1[column].dt.weekofyear
+    df1.drop(column, axis = 1, inplace = True)
+    wow_view = df1.groupby('week').agg('sum')
+    wow_view.index = [str(year) + '-' + str(i) + '-1' for i in wow_view.index]
+    wow_view.index = [datetime.datetime.strptime(i, '%Y-%W-%w') for i in wow_view.index]
+    return wow_view
