@@ -1,6 +1,6 @@
 #### dashDeployment Version 1.1
 
-Version 1.1:
+Notes:
   - Take preformatted and randomized data and allow the user to update the chart based on a dropdown menu of column names.
   - These column names are taken directly from the pandas dataframe itself, so the back-end doesn't have to change based on input file
   - Next steps in order of priority: </br>
