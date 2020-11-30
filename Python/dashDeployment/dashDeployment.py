@@ -89,8 +89,9 @@ app.layout = html.Div([
 )
 
 def update_trackID(track_id_input):
-    songRequest = requests.get(baseURL + 'audio-features/' + track_id_input, headers=headers).json()
-    return songRequest['loudness']
+    if track_id_input is not None:
+        songRequest = requests.get(baseURL + 'audio-features/' + track_id_input, headers=headers).json()
+        return songRequest['loudness']
 
 if __name__ == '__main__':
     app.run_server(debug=True)
