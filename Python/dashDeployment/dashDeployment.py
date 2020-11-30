@@ -1,101 +1,96 @@
 """
 dashDeployment.py
 
-Current Live: 1.2
-    # Simple scatter plot of modeled data
-    # User can update the target parameter in the regression
-    # Next steps:
-        - Visual enhancements to dashboard itself
-        - Dynamically update x and y axis labels
-        - Print out simple regression parameters
-    # Last Updated: 11/24
+An interactive app that allows the user to input a song,
+artist, or album and get back their background spotify
+data.
 
 """
 
 # ---------------------------------------------
 # 0: Package Import
-
-"""
-Goal:
-- Import basic functions
-"""
-
+import requests
 import dash_core_components as dcc
 import dash_html_components as html
 import dash
-import plotly.express as px
-import scipy.stats as stats
-import seaborn as sns
-import statsmodels.api as sm
+from dash.dependencies import Input, Output
 
 # ---------------------------------------------
-# 1: Temp Data
-"""
-Pull in sample data to stage regression
-"""
+# 1: Unlocking API
 
-irisData = sns.load_dataset('iris')
+# Staging credentials and URL
+clientID = 'afc6efa8f7ee456b8c1f8bda66ddbda3'
+clientSecret = '49aec50b3cd84b3383744bc20de20388'
+authURL = 'https://accounts.spotify.com/api/token'
+baseURL = 'https://api.spotify.com/v1/'
+
+# Posting
+authResponse = requests.post(authURL, {
+    'grant_type':'client_credentials',
+    'client_id':clientID,
+    'client_secret':clientSecret
+})
+
+# Convert to json
+authResponseData = authResponse.json()
+
+# Saving token
+accessToken = authResponseData['access_token']
 
 # ---------------------------------------------
-# 2: Functions and Variables
-"""
-Configure and stage global functions and variables to be used in the Dash app
-"""
+# 2: Data Import
 
-slope, intercept, r_value, p_value, std_err = stats.linregress(irisData['sepal_width'], irisData['sepal_length'])
+# Formatting Track ID
+track_id = '6y0igZArWVi6Iz0rj35c1Y'
 
-reg_plot = px.scatter(irisData['sepal_width'],
-                      intercept + irisData['sepal_length']*slope,
-                      width=800,
-                      height=400,
-                      )
+# Setting headers for request
+headers = {
+    'Authorization': 'Bearer {token}'.format(token=accessToken)
+}
+
+# Data retrieval with headers
+songRequest = requests.get(baseURL + 'audio-features/' + track_id, headers=headers).json()
 
 # ---------------------------------------------
-# 3: Dash App
+# 3: Staging Dash App
 
-"""
-Configure app settings, app layout
-"""
-
+# Style Sheet
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
+# Creating App
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
+# Creating widgets
 app.layout = html.Div([
     dcc.Markdown('''
-    #### Interactive Regression Dashboard
-    '''
+    #### Interactive Spotify Dashboard
+    ''',
+    style={
+        'textAlign':'left'
+    }
     ),
-    dcc.Dropdown(
-        id='xAxis-dropdown',
-        options=[{'label':i, 'value':i} for i in list(irisData.columns)]
+    dcc.Input(
+        id="Track ID",
+        placeholder="Enter Track ID here",
+        style={
+            'textAlign':'center'
+        }
     ),
-    dcc.Graph(
-        id='regression-figure',
-        figure=reg_plot,
-    ),
-    html.Div(id='dd-output-container')
+    html.Div(id="out-all-types")
 ])
 
 # ---------------------------------------------
-# 4: Dash App User Updates
+# 3: App Call-backs
 
-"""
-Define decorators and functions to update chart based on user input
-"""
-
+# Update the input
 @app.callback(
-    dash.dependencies.Output('regression-figure', 'figure'),
-    [dash.dependencies.Input('xAxis-dropdown', 'value')])
+    Output("out-all-types", "children"),
+    [Input("Track ID", "value")]
+)
 
-def update_graph(value):
-    slope, intercept, r_value, p_value, std_err = stats.linregress(irisData['sepal_width'], irisData[value])
-    reg_plot = px.scatter(irisData['sepal_width'],
-                          intercept + irisData['sepal_width'] * slope,
-                          width=800,
-                          height=400,
-                          )
-    return reg_plot
+def update_trackID(track_id_input):
+    songRequest = requests.get(baseURL + 'audio-features/' + track_id_input, headers=headers).json()
+    return songRequest['loudness']
 
 if __name__ == '__main__':
     app.run_server(debug=True)
