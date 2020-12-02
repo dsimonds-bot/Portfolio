@@ -60,25 +60,26 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 # Creating App
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-# Creating widgets
-app.layout = html.Div([
-    dcc.Markdown('''
-    #### Interactive Spotify Dashboard
-    ''',
-    style={
-        'textAlign':'left'
-    }
-    ),
-    dcc.Input(
-        id="Track ID",
-        placeholder="Enter Track ID here",
+# Creating App
+colors = {
+    'background': '#6563e3',
+    'text': '#7FDBFF'
+}
+
+app.layout = html.Div(style={'backgroundColor': colors['background']}, children=[
+    html.H1(
+        children='Hello Dash',
         style={
-            'textAlign':'center'
+            'textAlign': 'center',
+            'color': colors['text']
         }
     ),
-    html.Div(id="out-all-types")
-])
 
+    html.Div(children='Dash: A web application framework for Python.', style={
+        'textAlign': 'center',
+        'color': colors['text']
+    })
+])
 # ---------------------------------------------
 # 3: App Call-backs
 
