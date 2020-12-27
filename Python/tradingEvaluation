@@ -1,0 +1,73 @@
+# Package Import
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.style as style
+import seaborn as sb
+import quandl as q
+import pandas_datareader as pdr
+
+# Global variables
+tickers = []
+
+# Function definitions
+def data_pull(tx, start, end):
+    
+    """
+    
+    Goal:
+        - Take a user defined list of tickers
+        - Take a user defined start and end date
+        - Pull data from yahoo finance
+        - Store dataframes and tickers into a list 
+        
+    Output Structure:
+        
+        result = [[0th ticker, 0th df] .... [nth ticker, nth df]]
+    
+    """
+    
+    for i0, j0 in enumerate(tx):
+        
+        # Creating holding list for final results
+        final_ls = []
+        
+        # Creating sub list to concat i0 and j0
+        sub_ls = []
+        
+        # Pulling data using ticker
+        df = pdr.DataReader(j0,
+                            'yahoo',
+                            start,
+                            end)
+        
+        # Pulling in market data
+        mkt = pdr.DataReader('SPY',
+                             'yahoo',
+                             start,
+                             end
+                            )
+        
+        # Creating Market correlation coefficient
+        tx_corr = np.corrcoef(df['Adj Close'],
+                              mkt['Adj Close']
+                             )
+        
+        # Creating simple returns vector
+        df['Simple Returns'] = df['Adj Close'].pct_change()
+        
+        # Creating log returns vector
+        df['Log Returns'] = np.log(df['Adj Close']/df['Adj Close'].shift(-1))
+        
+        # Storing the data
+        sub_ls.append(list([j0,
+                            tx_corr[0][1],
+                            df['Adj Close'],
+                            df['Simple Returns'],
+                            df['Log Returns']
+                           ]
+                          )
+                     )
+        final_ls.append(sub_ls)
+        
+        return final_ls
